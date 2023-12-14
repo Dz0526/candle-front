@@ -4,25 +4,33 @@ import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import { Player } from '@lottiefiles/react-lottie-player';
 import { RefObject, useRef } from 'react';
+import { Box, Button } from '@chakra-ui/react';
 
 const Home: NextPage = () => {
   const ref: RefObject<Player> = useRef<Player>();
   return (
-    <Player
-      ref={ref}
-      src={
-        'https://lottie.host/8cd8150f-f609-4eaa-b562-dd870e547cdc/whZTvzqlr3.json'
-      }
-      autoplay
-      style={{ width: '300px', height: '300px' }}
-      onEvent={e => {
-        if (e == 'load') {
-          setTimeout(() => {
-            ref.current?.pause();
-          }, 1500);
+    <Box position={'relative'}>
+      <Button
+        onClick={() => {
+          ref.current?.play();
+        }}
+      >
+        kami
+      </Button>
+      <Player
+        ref={ref}
+        src={
+          'https://lottie.host/318d8b2a-15cc-421f-9913-846f4fc782a7/NOkBGoPal7.json'
         }
-      }}
-    ></Player>
+        style={{
+          width: '40px',
+          height: '40px',
+          position: 'absolute',
+          top: 0,
+          left: 50,
+        }}
+      ></Player>
+    </Box>
   );
 };
 
