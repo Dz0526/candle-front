@@ -1,36 +1,77 @@
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Heading,
+  Input,
+  VStack,
+} from '@chakra-ui/react';
+import santaAnimation from '../../lotties/santa.json';
 import type { NextPage } from 'next';
-import Head from 'next/head';
-import Image from 'next/image';
-import styles from '../styles/Home.module.css';
+import { useState } from 'react';
 import { Player } from '@lottiefiles/react-lottie-player';
-import { RefObject, useRef } from 'react';
-import { Box, Button } from '@chakra-ui/react';
 
 const Home: NextPage = () => {
-  const ref: RefObject<Player> = useRef<Player>();
+  const [roomId, setRoomId] = useState('');
+  const [error, setError] = useState('');
+
+  const onSubmit = () => {
+    setError('ルーム作成に失敗しました');
+  };
+
   return (
-    <Box position={'relative'}>
-      <Button
-        onClick={() => {
-          ref.current?.play();
-        }}
-      >
-        kami
-      </Button>
-      <Player
-        ref={ref}
-        src={
-          'https://lottie.host/318d8b2a-15cc-421f-9913-846f4fc782a7/NOkBGoPal7.json'
-        }
-        style={{
-          width: '40px',
-          height: '40px',
-          position: 'absolute',
-          top: 0,
-          left: 50,
-        }}
-      ></Player>
-    </Box>
+    <Container>
+      <Flex alignItems={'center'} h={'100vh'}>
+        <VStack spacing={8}>
+          <Heading>
+            <Box as='span' color='purple.800'>
+              サンタさん
+            </Box>
+            には
+            <br />
+            <Box as='span'>騙されない</Box>
+          </Heading>
+          <Box w={'50%'}>
+            <Player
+              src={
+                'https://lottie.host/93c0ce59-6b5d-451e-a8a2-694b6e403b6a/VMYQN5ZkF4.json'
+              }
+              autoplay
+              loop
+            />
+          </Box>
+
+          <Box border='1px' borderRadius='lg' borderColor='gray.200' p={4}>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                onSubmit();
+              }}
+            >
+              <VStack>
+                <FormControl isInvalid={!!error}>
+                  <FormLabel htmlFor='room_id'>ルームID</FormLabel>
+                  <Input
+                    id='room_id'
+                    type='text'
+                    value={roomId}
+                    onChange={e => setRoomId(e.target.value)}
+                  ></Input>
+                  {error && <FormErrorMessage>{error}</FormErrorMessage>}
+                </FormControl>
+                <Button type='submit' bg={'red.400'} color={'white'} w='100%'>
+                  ルーム作成
+                </Button>
+              </VStack>
+            </form>
+          </Box>
+        </VStack>
+      </Flex>
+    </Container>
   );
 };
 
