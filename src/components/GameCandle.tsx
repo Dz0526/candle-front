@@ -1,6 +1,6 @@
-import { Button } from '@chakra-ui/react';
 import { Player } from '@lottiefiles/react-lottie-player';
 import { RefObject, useRef, useState } from 'react';
+import { Button } from './common/Button';
 
 type Props = {
   isLit: boolean;
