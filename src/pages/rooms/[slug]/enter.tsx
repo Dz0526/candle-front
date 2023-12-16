@@ -10,11 +10,16 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  Text,
   VStack,
+  keyframes,
 } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { Player } from '@lottiefiles/react-lottie-player';
+import TinderCard from 'react-tinder-card';
+import { motion } from 'framer-motion';
+import { createRef, useRef, useState } from 'react';
 
 type Question = {
   id: number;
@@ -22,7 +27,7 @@ type Question = {
 };
 
 type Answer = {
-  id: number;
+  question_id: number;
   answer: boolean;
 };
 
@@ -57,7 +62,16 @@ const QUESTIONS: Question[] = [
   },
 ];
 
+const animationKeyframes = keyframes`
+0% {transform: translate(0)}
+50% {transform: translate(-150px)}
+100% {transform: translate(0)}
+`;
+const animation = `${animationKeyframes} 4s linear infinite`;
+
 const EnterPage: NextPage = () => {
+  const [swipedNum, setSwipedNum] = useState(0);
+  const [answers, setAnswers] = useState<Answer[]>([]);
   const router = useRouter();
 
   const onSubmit = () => {
@@ -90,27 +104,82 @@ const EnterPage: NextPage = () => {
                   <FormLabel htmlFor='name'>ユーザー名</FormLabel>
                   <Input id='name'></Input>
                 </FormControl>
-                {QUESTIONS.map((question, index) => (
-                  <FormControl key={question.id}>
-                    <FormLabel>
-                      <Box as='span' fontWeight={'bold'}>
-                        Q{index + 1}.
+                <Box w={'90vw'} maxW={'260px'} height={'300px'}>
+                  {QUESTIONS.map((question, index) => (
+                    <TinderCard
+                      className='swipe'
+                      key={question.id}
+                      preventSwipe={['up', 'down']}
+                      onSwipe={async dir => {
+                        setSwipedNum(swipedNum + 1);
+                        if (dir == 'right') {
+                          setAnswers([
+                            ...answers,
+                            { question_id: question.id, answer: true },
+                          ]);
+                        }
+                        if (dir == 'left') {
+                          setAnswers([
+                            ...answers,
+                            { question_id: question.id, answer: false },
+                          ]);
+                        }
+                      }}
+                    >
+                      <Box
+                        position={'relative'}
+                        //bgGradient={'linear(to-r, green.200, pink.500)'}
+                        bgColor={'white'}
+                        width={'80vw'}
+                        maxW={'260px'}
+                        height={'300px'}
+                        boxShadow={'lg'}
+                        borderRadius={'20px'}
+                      >
+                        <VStack justifyContent={'center'} height={'100%'}>
+                          <Text
+                            //color={'white'}
+                            fontSize={'3xl'}
+                            textAlign={'center'}
+                          >
+                            {question.content}
+                          </Text>
+                        </VStack>
+                        <Box
+                          position={'absolute'}
+                          top={0}
+                          right={0}
+                          as={motion.div}
+                          animation={animation}
+                        >
+                          <Player
+                            src={
+                              'https://lottie.host/5b7e9314-aef0-4780-8a41-363bb1ff6385/q2Xkv4bc0H.json'
+                            }
+                            autoplay
+                            loop
+                            style={{
+                              width: '100px',
+                              height: '100px',
+                            }}
+                          />
+                        </Box>
                       </Box>
-                      <Box as='span' pl={1}>
-                        {question.content}
-                      </Box>
-                    </FormLabel>
-                    <RadioGroup defaultValue='true'>
-                      <Stack direction='row'>
-                        <Radio value='true'>はい</Radio>
-                        <Radio value='false'>いいえ</Radio>
-                      </Stack>
-                    </RadioGroup>
-                  </FormControl>
-                ))}
+                    </TinderCard>
+                  ))}
+                </Box>
+                <Text>スワイプ！Yesは右へ Noは左へ</Text>
               </VStack>
 
-              <Button bg={'red.400'} color='white' type='submit' w='100%'>
+              <Button
+                bg={'red.400'}
+                color='white'
+                type='submit'
+                w='100%'
+                isLoading={QUESTIONS.length > swipedNum}
+                loadingText={'参加する'}
+                spinner={<></>}
+              >
                 参加する
               </Button>
             </VStack>
