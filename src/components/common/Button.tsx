@@ -1,12 +1,12 @@
 import { Box, ButtonProps, Button as CButton } from '@chakra-ui/react';
 import { Player } from '@lottiefiles/react-lottie-player';
-import { useRef, useState } from 'react';
+import { RefObject, useRef, useState } from 'react';
 
 type Props = Omit<ButtonProps, 'zIndex' | 'onClickCapture'>;
 
 export const Button = (props: Props) => {
-  const ref = useRef<Player>();
-  const ref2 = useRef<Player>();
+  const ref = useRef<Player>() as RefObject<Player>;
+  const ref2 = useRef<Player>() as RefObject<Player>;
   const [zIndex, setZIndex] = useState(10);
   return (
     <Box position={'relative'} w={props.w ?? 'auto'}>
