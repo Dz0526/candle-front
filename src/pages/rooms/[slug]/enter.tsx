@@ -7,9 +7,6 @@ import {
   FormLabel,
   Heading,
   Input,
-  Radio,
-  RadioGroup,
-  Stack,
   Text,
   VStack,
   keyframes,
@@ -19,48 +16,19 @@ import { useRouter } from 'next/router';
 import { Player } from '@lottiefiles/react-lottie-player';
 import TinderCard from 'react-tinder-card';
 import { motion } from 'framer-motion';
-import { createRef, useRef, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { client } from 'utils/client';
 
-type Question = {
-  id: number;
-  content: string;
+type QuestionResponse = {
+  questions: { question_id: number; statement: string }[];
 };
 
 type Answer = {
   question_id: number;
   answer: boolean;
 };
-
-const QUESTIONS: Question[] = [
-  {
-    id: 1,
-    content: '進撃の巨人が好きですか',
-  },
-  {
-    id: 2,
-    content: '中日ドラゴンズファンですか',
-  },
-  {
-    id: 3,
-    content: '呪術廻戦を観ていますか',
-  },
-  {
-    id: 4,
-    content: 'LE SSERAFIMを知っていますか',
-  },
-  {
-    id: 5,
-    content: '海外旅行に行ったことがありますか',
-  },
-  {
-    id: 6,
-    content: 'ONE PIECEに詳しいですか',
-  },
-  {
-    id: 7,
-    content: '海外旅行に行ったことがありますか',
-  },
-];
 
 const animationKeyframes = keyframes`
 0% {transform: translate(0)}
@@ -73,6 +41,11 @@ const EnterPage: NextPage = () => {
   const [swipedNum, setSwipedNum] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const router = useRouter();
+  const { isLoading, data } = useQuery<QuestionResponse, AxiosError>({
+    queryKey: ['questions'],
+    queryFn: () =>
+      client.get<QuestionResponse>('/questions').then(res => res.data),
+  });
 
   const onSubmit = () => {
     router.push(`/rooms/${router.query.slug}`);
@@ -105,68 +78,76 @@ const EnterPage: NextPage = () => {
                   <Input id='name'></Input>
                 </FormControl>
                 <Box w={'90vw'} maxW={'260px'} height={'300px'}>
-                  {QUESTIONS.map((question, index) => (
-                    <TinderCard
-                      className='swipe'
-                      key={question.id}
-                      preventSwipe={['up', 'down']}
-                      onSwipe={async dir => {
-                        setSwipedNum(swipedNum + 1);
-                        if (dir == 'right') {
-                          setAnswers([
-                            ...answers,
-                            { question_id: question.id, answer: true },
-                          ]);
-                        }
-                        if (dir == 'left') {
-                          setAnswers([
-                            ...answers,
-                            { question_id: question.id, answer: false },
-                          ]);
-                        }
-                      }}
-                    >
-                      <Box
-                        position={'relative'}
-                        //bgGradient={'linear(to-r, green.200, pink.500)'}
-                        bgColor={'white'}
-                        width={'80vw'}
-                        maxW={'260px'}
-                        height={'300px'}
-                        boxShadow={'lg'}
-                        borderRadius={'20px'}
+                  {!isLoading &&
+                    data &&
+                    data.questions.map((question, index) => (
+                      <TinderCard
+                        className='swipe'
+                        key={question.question_id}
+                        preventSwipe={['up', 'down']}
+                        onSwipe={async dir => {
+                          setSwipedNum(swipedNum + 1);
+                          if (dir == 'right') {
+                            setAnswers([
+                              ...answers,
+                              {
+                                question_id: question.question_id,
+                                answer: true,
+                              },
+                            ]);
+                          }
+                          if (dir == 'left') {
+                            setAnswers([
+                              ...answers,
+                              {
+                                question_id: question.question_id,
+                                answer: false,
+                              },
+                            ]);
+                          }
+                        }}
                       >
-                        <VStack justifyContent={'center'} height={'100%'}>
-                          <Text
-                            //color={'white'}
-                            fontSize={'3xl'}
-                            textAlign={'center'}
-                          >
-                            {question.content}
-                          </Text>
-                        </VStack>
                         <Box
-                          position={'absolute'}
-                          top={0}
-                          right={0}
-                          as={motion.div}
-                          animation={animation}
+                          position={'relative'}
+                          //bgGradient={'linear(to-r, green.200, pink.500)'}
+                          bgColor={'white'}
+                          width={'80vw'}
+                          maxW={'260px'}
+                          height={'300px'}
+                          boxShadow={'lg'}
+                          borderRadius={'20px'}
                         >
-                          <Player
-                            src={
-                              'https://lottie.host/5b7e9314-aef0-4780-8a41-363bb1ff6385/q2Xkv4bc0H.json'
-                            }
-                            autoplay
-                            loop
-                            style={{
-                              width: '100px',
-                              height: '100px',
-                            }}
-                          />
+                          <VStack justifyContent={'center'} height={'100%'}>
+                            <Text
+                              //color={'white'}
+                              fontSize={'3xl'}
+                              textAlign={'center'}
+                            >
+                              {question.statement}
+                            </Text>
+                          </VStack>
+                          <Box
+                            position={'absolute'}
+                            top={0}
+                            right={0}
+                            as={motion.div}
+                            animation={animation}
+                          >
+                            <Player
+                              src={
+                                'https://lottie.host/5b7e9314-aef0-4780-8a41-363bb1ff6385/q2Xkv4bc0H.json'
+                              }
+                              autoplay
+                              loop
+                              style={{
+                                width: '100px',
+                                height: '100px',
+                              }}
+                            />
+                          </Box>
                         </Box>
-                      </Box>
-                    </TinderCard>
-                  ))}
+                      </TinderCard>
+                    ))}
                 </Box>
                 <Text>スワイプ！Yesは右へ Noは左へ</Text>
               </VStack>
@@ -176,7 +157,7 @@ const EnterPage: NextPage = () => {
                 color='white'
                 type='submit'
                 w='100%'
-                isLoading={QUESTIONS.length > swipedNum}
+                isLoading={data ? data?.questions.length > swipedNum : true}
                 loadingText={'参加する'}
                 spinner={<></>}
               >

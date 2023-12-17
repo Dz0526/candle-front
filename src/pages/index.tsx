@@ -10,17 +10,40 @@ import {
   Input,
   VStack,
 } from '@chakra-ui/react';
-import santaAnimation from '../../lotties/santa.json';
 import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Player } from '@lottiefiles/react-lottie-player';
+import { client } from 'utils/client';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+
+type CreateRoomInput = {
+  room_id: string;
+};
+
+type CreateRoomResponse = {
+  room_id: string;
+};
 
 const Home: NextPage = () => {
   const [roomId, setRoomId] = useState('');
   const [error, setError] = useState('');
+  const router = useRouter();
+  const mutation = useMutation({
+    mutationFn: (input: CreateRoomInput) =>
+      client.post<CreateRoomResponse>('/rooms', input).then(res => res.data),
+    onSuccess: data => {
+      router.push(`/rooms/${data}/share`);
+    },
+    onError: error => {
+      // toast
+      console.log(error);
+      setError('ルーム作成に失敗しました');
+    },
+  });
 
   const onSubmit = () => {
-    setError('ルーム作成に失敗しました');
+    mutation.mutate({ room_id: roomId });
   };
 
   return (
