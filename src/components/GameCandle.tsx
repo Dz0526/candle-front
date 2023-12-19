@@ -6,12 +6,13 @@ type Props = {
   isLit: boolean;
 };
 
-export const GameCandle = () => {
-  const ref = useRef<Player>() as RefObject<Player>;
-  const [isLit, setIsLit] = useState(false);
+export const GameCandle = (props: Props) => {
+  const ref: RefObject<Player> = useRef<Player>();
+  // const [isLit, setIsLit] = useState(false);
+
   return (
     <>
-      {isLit ? (
+      {props.isLit ? (
         <Player
           src={
             'https://lottie.host/e14f1cb3-b451-48aa-9372-33b8ad641669/TSfpHpOfvn.json'
@@ -38,13 +39,13 @@ export const GameCandle = () => {
           }}
         ></Player>
       )}
-      <Button
+      {/* <Button
         bgColor={'lightBlue'}
         color={'white'}
         onClick={() => setIsLit(!isLit)}
       >
         {isLit ? '消す' : '灯す'}
-      </Button>
+      </Button> */}
     </>
   );
 };
