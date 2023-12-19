@@ -17,25 +17,25 @@ export class SonicCoder {
   public alphabet: string;
 
   constructor(params: SonicCoderParams = {}) {
-    this.freqMin = params.freqMin || 18000;
+    this.freqMin = params.freqMin || 17000;
     this.freqMax = params.freqMax || 19500;
     this.freqError = params.freqError || 50;
     this.alphabetString =
-      params.alphabet || "\n abcdefghijklmnopqrstuvwxyz0123456789,.!?@*";
-    this.startChar = params.startChar || "^";
-    this.endChar = params.endChar || "$";
+      params.alphabet || 'abcdefghijklmnopqrstuvwxyz0123456789-,';
+    this.startChar = params.startChar || '^';
+    this.endChar = params.endChar || '$';
     this.alphabet = this.startChar + this.alphabetString + this.endChar;
   }
 
   charToFreq(char: string): number {
     let index = this.alphabet.indexOf(char);
     if (index === -1) {
-      console.error(char, "is an invalid character.");
+      console.error(char, 'is an invalid character.');
       index = this.alphabet.length - 1;
     }
-    let freqRange = this.freqMax - this.freqMin;
-    let percent = index / this.alphabet.length;
-    let freqOffset = Math.round(freqRange * percent);
+    const freqRange = this.freqMax - this.freqMin;
+    const percent = index / this.alphabet.length;
+    const freqOffset = Math.round(freqRange * percent);
     return this.freqMin + freqOffset;
   }
 
@@ -46,13 +46,13 @@ export class SonicCoder {
       } else if (freq - this.freqMax < this.freqError) {
         freq = this.freqMax;
       } else {
-        console.error(freq, "is out of range.");
+        console.error(freq, 'is out of range.');
         return null;
       }
     }
-    let freqRange = this.freqMax - this.freqMin;
-    let percent = (freq - this.freqMin) / freqRange;
-    let index = Math.round(this.alphabet.length * percent);
+    const freqRange = this.freqMax - this.freqMin;
+    const percent = (freq - this.freqMin) / freqRange;
+    const index = Math.round(this.alphabet.length * percent);
     return this.alphabet[index];
   }
 }
