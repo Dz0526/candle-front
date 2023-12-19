@@ -30,6 +30,7 @@ const Home: NextPage = () => {
   const [roomId, setRoomId] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+
   const mutation = useMutation({
     mutationFn: (input: CreateRoomInput) =>
       client.post<CreateRoomResponse>('/room', input).then(res => res.data),

@@ -1,15 +1,57 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import { Player } from '@lottiefiles/react-lottie-player';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-import { Box, Progress, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Container,
+  Flex,
+  Heading,
+  Progress,
+  Spinner,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { GameCandle } from 'components/GameCandle';
+import { useRouter } from 'next/router';
+import { Button } from 'components/common/Button';
 
 const Game = () => {
   const [passedTime, setPassedTime] = useState(0);
+  const [isPending, setIsPending] = useState(true);
+  const socket = useRef<WebSocket>();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const slug = router.query.slug;
+    socket.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_ORIGIN}`);
+    socket.current.onopen = () => {
+      socket.current?.send(JSON.stringify({ topic: slug }));
+    };
+    socket.current.onmessage = msg => {
+      if (msg.data == 'start') {
+        setIsPending(false);
+      }
+    };
+
+    return () => {
+      if (socket.current) {
+        socket.current.close();
+      }
+    };
+  }, [router]);
+
+  const start = () => {
+    if (socket.current) {
+      const slug = router.query.slug;
+      socket.current.send(JSON.stringify({ topic: slug, message: 'start' }));
+      setIsPending(false);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -19,6 +61,22 @@ const Game = () => {
       clearInterval(interval);
     };
   }, [passedTime]);
+
+  if (isPending) {
+    return (
+      <Container>
+        <Flex justifyContent={'center'} h={'100vh'} alignItems={'center'}>
+          <VStack>
+            <Heading>待機中</Heading>
+            <Spinner></Spinner>
+            <Button bg={'red.400'} color={'white'} onClick={() => start()}>
+              スタート
+            </Button>
+          </VStack>
+        </Flex>
+      </Container>
+    );
+  }
   return (
     <>
       <Progress value={passedTime <= 100 ? 100 - passedTime : 0} />
