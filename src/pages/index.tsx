@@ -10,17 +10,50 @@ import {
   Input,
   VStack,
 } from '@chakra-ui/react';
-import santaAnimation from '../../lotties/santa.json';
 import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Player } from '@lottiefiles/react-lottie-player';
+import { client } from 'utils/client';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+import { AxiosError } from 'axios';
+
+type CreateRoomInput = {
+  room_id: string;
+};
+
+type CreateRoomResponse = {
+  room_id: string;
+};
 
 const Home: NextPage = () => {
   const [roomId, setRoomId] = useState('');
   const [error, setError] = useState('');
+  const router = useRouter();
+  const mutation = useMutation({
+    mutationFn: (input: CreateRoomInput) =>
+      client.post<CreateRoomResponse>('/room', input).then(res => res.data),
+    onSuccess: data => {
+      router.push(`/rooms/${data.room_id}/share`);
+    },
+    onError: error => {
+      // toast
+      if (
+        error instanceof AxiosError &&
+        error.response &&
+        error.response?.status == 409
+      ) {
+        setError(
+          'ルームIDがすでに使用されています．別のルームIDを試してください．',
+        );
+        return;
+      }
+      setError('ルーム作成に失敗しました');
+    },
+  });
 
   const onSubmit = () => {
-    setError('ルーム作成に失敗しました');
+    mutation.mutate({ room_id: roomId });
   };
 
   return (
