@@ -79,7 +79,6 @@ const Game = () => {
   const [role, setRole] = useState<StartResponse>();
   const [error, setError] = useState('');
   const { remainingTimePercentage, start: startTimer } = useTimer(20, () => {
-    alert(role);
     if (role && igniter) {
       sendResult({
         user_id: router.query.user_id as string,
@@ -87,9 +86,6 @@ const Game = () => {
         question_id: 0,
       });
     }
-  });
-  useEffect(() => {
-    console.log(role);
   });
 
   const { mutate: startGame } = useMutation({
@@ -110,7 +106,6 @@ const Game = () => {
         .post<ResultResponse>(`/room/${router.query.slug}/result`, input)
         .then(res => res.data),
     onSuccess: data => {
-      alert(data);
       router.push(
         `/rooms/${router.query.slug}/result?user_id=${router.query.user_id}`,
       );
@@ -179,7 +174,7 @@ const Game = () => {
         socket.current.close();
       }
     };
-  }, [router]);
+  }, [router, startTimer]);
 
   const start = () => {
     if (socket.current) {
