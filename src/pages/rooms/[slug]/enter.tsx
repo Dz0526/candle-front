@@ -33,7 +33,7 @@ type Answer = {
 
 type EnterRoomInput = {
   nickname: string;
-  answers: { question_id: string; answer: boolean }[];
+  answers: { question_id: number; answer: boolean }[];
 };
 
 type EnterRoomResponse = {
@@ -85,10 +85,7 @@ const EnterPage: NextPage = () => {
   const onSubmit = () => {
     mutation.mutate({
       nickname: nickname,
-      answers: answers.map(ans => ({
-        ...ans,
-        question_id: ans.question_id.toString(),
-      })),
+      answers: answers,
     });
   };
 

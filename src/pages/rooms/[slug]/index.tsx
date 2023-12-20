@@ -1,14 +1,19 @@
 import {
   Box,
   Button,
-  Container,
-  Flex,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   Progress,
   Text,
   VStack,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { Player } from '@lottiefiles/react-lottie-player';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import MicPermission from 'components/Game/MicPermission';
 import Pending from 'components/Game/Pending';
 import { GameCandle } from 'components/GameCandle';
@@ -21,6 +26,7 @@ import 'swiper/css/pagination';
 import { Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperType } from 'swiper/types';
+import { client } from 'utils/client';
 
 type StartResponse = {
   user_id: string;
@@ -29,17 +35,8 @@ type StartResponse = {
   statement: string;
 };
 
-const fetchRole = (): Promise<StartResponse> => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve({
-        user_id: '859e482e-d3e5-4b9b-a322-c0b6b7e3b4f6',
-        is_santa: true,
-        question_id: '1',
-        statement: 'ワンピースが好きな人に灯してもらうキャンドル',
-      });
-    }, 1000);
-  });
+type StartInput = {
+  user_id: string;
 };
 
 const Game = () => {
@@ -61,18 +58,35 @@ const Game = () => {
   const socket = useRef<WebSocket>();
   const router = useRouter();
   const torchRef = useRef<Player>() as RefObject<Player>;
-  const [showSanta, setShowSanta] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [igniter, setIgniter] = useState('');
+  const [role, setRole] = useState<StartResponse>();
+  const [error, setError] = useState('');
 
-  const { isLoading, data } = useQuery<StartResponse>({
-    queryKey: ['role'],
-    queryFn: () => fetchRole(),
-    enabled: !isPending,
+  const { mutate } = useMutation({
+    mutationFn: (input: StartInput) =>
+      client
+        .post<StartResponse>(`/room/${router.query.slug}/start`, input)
+        .then(res => res.data),
+    onSuccess: data => {
+      setRole(data);
+    },
+    onError: error => {
+      setError('エラーが発生しました。');
+    },
   });
+
   useEffect(() => {
-    if (data && data.is_santa) {
-      setShowSanta(true);
+    if (role) {
+      onOpen();
     }
-  }, [data]);
+  }, [role, onOpen]);
+
+  useEffect(() => {
+    if (!isPending && router.isReady) {
+      mutate({ user_id: router.query.user_id as string });
+    }
+  }, [isPending, mutate, router]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -88,7 +102,6 @@ const Game = () => {
 
       if (message.type == 'fire_request') {
         if ((router.query.user_id as string).startsWith(message.to)) {
-          alert(message.from.nickname);
           socket.current?.send(
             JSON.stringify({
               topic: router.query.slug,
@@ -107,7 +120,7 @@ const Game = () => {
 
       if (message.type == 'fire_response') {
         if (message.to == router.query.user_id) {
-          alert(message.from);
+          setIgniter(message.from.nickname);
           setIsLit(true);
         }
       }
@@ -155,7 +168,13 @@ const Game = () => {
         );
       }
     },
-    [pageIndex, router.query.slug, router.query.user_id],
+    [
+      isLit,
+      pageIndex,
+      router.query.nickname,
+      router.query.slug,
+      router.query.user_id,
+    ],
   );
 
   useEffect(() => {
@@ -196,30 +215,40 @@ const Game = () => {
     );
   }
 
-  if (isPending || isLoading || !data) {
+  if (isPending || !role) {
     return <Pending onStart={() => start()}></Pending>;
-  }
-
-  if (showSanta) {
-    return (
-      <Container>
-        <Flex>
-          <Box>
-            <Player
-              src={
-                'https://lottie.host/93c0ce59-6b5d-451e-a8a2-694b6e403b6a/VMYQN5ZkF4.json'
-              }
-            />
-          </Box>
-        </Flex>
-      </Container>
-    );
   }
 
   return (
     <>
       <Progress value={passedTime <= 100 ? 100 - passedTime : 0} />
-
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>あなたの役職</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack p={10}>
+              {role.is_santa ? (
+                <Player
+                  src={
+                    'https://lottie.host/93c0ce59-6b5d-451e-a8a2-694b6e403b6a/VMYQN5ZkF4.json'
+                  }
+                />
+              ) : (
+                <Player
+                  src={
+                    'https://lottie.host/45b3da84-e875-4649-91e4-5f5a20b7eef1/ZnrEPPqgNT.json'
+                  }
+                />
+              )}
+              <Text fontSize={'xx-large'}>
+                {role.is_santa ? 'サンタ' : '市民'}
+              </Text>
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
       <Box display={'flex'} height={'100%'} alignItems={'center'}>
         <Swiper
           modules={[Pagination, Navigation]}
@@ -261,16 +290,10 @@ const Game = () => {
           </SwiperSlide>
           <SwiperSlide>
             <VStack>
-              <Text>{data.statement}</Text>
-              <GameCandle isLit={isLit} />
+              <Text>{role.statement}</Text>
+              <GameCandle isLit={isLit} ignitedBy={igniter} />
             </VStack>
           </SwiperSlide>
-          {/* <SwiperSlide>
-            <VStack>
-              <Text>Trance好きに灯してもらうキャンドル</Text>
-              <GameCandle />
-            </VStack>
-          </SwiperSlide> */}
         </Swiper>
       </Box>
     </>
