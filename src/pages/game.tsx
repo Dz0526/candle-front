@@ -16,6 +16,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Swiper as SwiperType } from 'swiper/types';
 
 const Game = () => {
   const [passedTime, setPassedTime] = useState(0);
@@ -88,7 +89,7 @@ const Game = () => {
           navigation
           pagination
           style={{ height: '65%' }}
-          onSlideChange={swiper => {
+          onSlideChange={(swiper: SwiperType) => {
             setPageIndex(swiper.activeIndex);
           }}
         >

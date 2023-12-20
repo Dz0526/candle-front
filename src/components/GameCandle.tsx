@@ -7,7 +7,7 @@ type Props = {
 };
 
 export const GameCandle = (props: Props) => {
-  const ref: RefObject<Player> = useRef<Player>();
+  const ref = useRef<Player>() as RefObject<Player>;
   // const [isLit, setIsLit] = useState(false);
 
   return (
