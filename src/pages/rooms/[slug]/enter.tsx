@@ -64,7 +64,9 @@ const EnterPage: NextPage = () => {
         .post<EnterRoomResponse>(`/room/${router.query.slug}`, input)
         .then(res => res.data),
     onSuccess: data => {
-      router.push(`/rooms/${router.query.slug}?user_id=${data.user_id}`);
+      router.push(
+        `/rooms/${router.query.slug}?user_id=${data.user_id}&nickname=${nickname}`,
+      );
     },
     onError: error => {
       // toast

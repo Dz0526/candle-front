@@ -1,5 +1,14 @@
-import { Box, Button, Progress, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Progress,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { Player } from '@lottiefiles/react-lottie-player';
+import { useQuery } from '@tanstack/react-query';
 import MicPermission from 'components/Game/MicPermission';
 import Pending from 'components/Game/Pending';
 import { GameCandle } from 'components/GameCandle';
@@ -12,6 +21,26 @@ import 'swiper/css/pagination';
 import { Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperType } from 'swiper/types';
+
+type StartResponse = {
+  user_id: string;
+  is_santa: boolean;
+  question_id: string;
+  statement: string;
+};
+
+const fetchRole = (): Promise<StartResponse> => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve({
+        user_id: '859e482e-d3e5-4b9b-a322-c0b6b7e3b4f6',
+        is_santa: true,
+        question_id: '1',
+        statement: 'ワンピースが好きな人に灯してもらうキャンドル',
+      });
+    }, 1000);
+  });
+};
 
 const Game = () => {
   const [passedTime, setPassedTime] = useState(0);
@@ -32,6 +61,18 @@ const Game = () => {
   const socket = useRef<WebSocket>();
   const router = useRouter();
   const torchRef = useRef<Player>() as RefObject<Player>;
+  const [showSanta, setShowSanta] = useState(false);
+
+  const { isLoading, data } = useQuery<StartResponse>({
+    queryKey: ['role'],
+    queryFn: () => fetchRole(),
+    enabled: !isPending,
+  });
+  useEffect(() => {
+    if (data && data.is_santa) {
+      setShowSanta(true);
+    }
+  }, [data]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -47,13 +88,17 @@ const Game = () => {
 
       if (message.type == 'fire_request') {
         if ((router.query.user_id as string).startsWith(message.to)) {
+          alert(message.from.nickname);
           socket.current?.send(
             JSON.stringify({
               topic: router.query.slug,
               message: JSON.stringify({
                 type: 'fire_response',
-                from: router.query.user_id,
-                to: message.from,
+                from: {
+                  userId: router.query.user_id,
+                  nickname: router.query.nickname,
+                },
+                to: message.from.userId,
               }),
             }),
           );
@@ -90,7 +135,7 @@ const Game = () => {
 
   const onFired = useCallback(
     (message: string) => {
-      if (pageIndex == 0) {
+      if (pageIndex == 0 || isLit) {
         return;
       }
       if (socket.current) {
@@ -100,7 +145,10 @@ const Game = () => {
             topic: router.query.slug,
             message: JSON.stringify({
               type: 'fire_request',
-              from: router.query.user_id,
+              from: {
+                userId: router.query.user_id,
+                nickname: router.query.nickname,
+              },
               to: decodedId,
             }),
           }),
@@ -148,8 +196,24 @@ const Game = () => {
     );
   }
 
-  if (isPending) {
+  if (isPending || isLoading || !data) {
     return <Pending onStart={() => start()}></Pending>;
+  }
+
+  if (showSanta) {
+    return (
+      <Container>
+        <Flex>
+          <Box>
+            <Player
+              src={
+                'https://lottie.host/93c0ce59-6b5d-451e-a8a2-694b6e403b6a/VMYQN5ZkF4.json'
+              }
+            />
+          </Box>
+        </Flex>
+      </Container>
+    );
   }
 
   return (
@@ -197,7 +261,7 @@ const Game = () => {
           </SwiperSlide>
           <SwiperSlide>
             <VStack>
-              <Text>ONE PIEACE好きに灯してもらうキャンドル</Text>
+              <Text>{data.statement}</Text>
               <GameCandle isLit={isLit} />
             </VStack>
           </SwiperSlide>
