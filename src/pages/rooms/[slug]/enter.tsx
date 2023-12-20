@@ -42,7 +42,7 @@ type EnterRoomResponse = {
 
 const animationKeyframes = keyframes`
 0% {transform: translate(0)}
-50% {transform: translate(-150px)}
+50% {transform: translate(-120px)}
 100% {transform: translate(0)}
 `;
 const animation = `${animationKeyframes} 4s linear infinite`;
@@ -100,9 +100,16 @@ const EnterPage: NextPage = () => {
           loop
         />
       </Box>
-      <Flex justifyContent={'center'}>
-        <VStack spacing={8} zIndex={0} mt={40} mb={20}>
-          <Heading>ゲームに参加するために質問に答えよう</Heading>
+      <Flex justifyContent={'center'} maxH={{ base: '600px' }}>
+        <VStack
+          spacing={8}
+          zIndex={0}
+          mt={{ base: 20, sm: 40 }}
+          mb={{ base: 0, sm: 20 }}
+        >
+          <Heading fontSize={{ base: 'lg', sm: '2xl' }}>
+            ゲームに参加するために質問に答えよう
+          </Heading>
           <form
             onSubmit={e => {
               e.preventDefault();
@@ -118,7 +125,11 @@ const EnterPage: NextPage = () => {
                     onChange={e => setNickname(e.target.value)}
                   ></Input>
                 </FormControl>
-                <Box w={'90vw'} maxW={'260px'} height={'300px'}>
+                <Box
+                  w={'90vw'}
+                  maxW={{ base: '200px', sm: '260px' }}
+                  height={{ base: '240px', sm: '300px' }}
+                >
                   {!isLoading &&
                     data &&
                     data.questions.map((question, index) => (
@@ -153,15 +164,15 @@ const EnterPage: NextPage = () => {
                           //bgGradient={'linear(to-r, green.200, pink.500)'}
                           bgColor={'white'}
                           width={'80vw'}
-                          maxW={'260px'}
-                          height={'300px'}
+                          maxW={{ base: '200px', sm: '260px' }}
+                          height={{ base: '240px', sm: '300px' }}
                           boxShadow={'lg'}
                           borderRadius={'20px'}
                         >
                           <VStack justifyContent={'center'} height={'100%'}>
                             <Text
                               //color={'white'}
-                              fontSize={'3xl'}
+                              fontSize={{ base: '2xl', sm: '3xl' }}
                               textAlign={'center'}
                             >
                               {question.statement}
