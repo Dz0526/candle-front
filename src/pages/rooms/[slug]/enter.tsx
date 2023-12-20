@@ -4,6 +4,7 @@ import {
   Container,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -17,7 +18,7 @@ import { Player } from '@lottiefiles/react-lottie-player';
 import TinderCard from 'react-tinder-card';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { client } from 'utils/client';
 
@@ -30,6 +31,15 @@ type Answer = {
   answer: boolean;
 };
 
+type EnterRoomInput = {
+  nickname: string;
+  answers: { question_id: number; answer: boolean }[];
+};
+
+type EnterRoomResponse = {
+  user_id: string;
+};
+
 const animationKeyframes = keyframes`
 0% {transform: translate(0)}
 50% {transform: translate(-120px)}
@@ -40,15 +50,43 @@ const animation = `${animationKeyframes} 4s linear infinite`;
 const EnterPage: NextPage = () => {
   const [swipedNum, setSwipedNum] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
+  const [nickname, setNickname] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
   const { isLoading, data } = useQuery<QuestionResponse, AxiosError>({
     queryKey: ['questions'],
     queryFn: () =>
       client.get<QuestionResponse>('/questions').then(res => res.data),
   });
+  const mutation = useMutation({
+    mutationFn: (input: EnterRoomInput) =>
+      client
+        .post<EnterRoomResponse>(`/room/${router.query.slug}`, input)
+        .then(res => res.data),
+    onSuccess: data => {
+      router.push(
+        `/rooms/${router.query.slug}?user_id=${data.user_id}&nickname=${nickname}`,
+      );
+    },
+    onError: error => {
+      // toast
+      if (
+        error instanceof AxiosError &&
+        error.response &&
+        error.response?.status == 404
+      ) {
+        setError('存在しないルームです');
+        return;
+      }
+      setError('入室に失敗しました。');
+    },
+  });
 
   const onSubmit = () => {
-    router.push(`/rooms/${router.query.slug}`);
+    mutation.mutate({
+      nickname: nickname,
+      answers: answers,
+    });
   };
 
   return (
@@ -82,7 +120,10 @@ const EnterPage: NextPage = () => {
               <VStack spacing={8}>
                 <FormControl>
                   <FormLabel htmlFor='name'>ユーザー名</FormLabel>
-                  <Input id='name'></Input>
+                  <Input
+                    id='name'
+                    onChange={e => setNickname(e.target.value)}
+                  ></Input>
                 </FormControl>
                 <Box
                   w={'90vw'}
@@ -162,6 +203,7 @@ const EnterPage: NextPage = () => {
                 </Box>
                 <Text>スワイプ！Yesは右へ Noは左へ</Text>
               </VStack>
+              {error && <FormErrorMessage>{error}</FormErrorMessage>}
 
               <Button
                 bg={'red.400'}
