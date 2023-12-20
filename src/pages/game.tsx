@@ -10,7 +10,7 @@ import {
 import { Player } from '@lottiefiles/react-lottie-player';
 import { GameCandle } from 'components/GameCandle';
 import { SonicServer, SonicSocket } from 'lib/sonicnet';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, RefObject } from 'react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -25,6 +25,7 @@ const Game = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [hasPermission, setHasPermission] = useState(false);
   const [isLit, setIsLit] = useState(false);
+  const torchRef = useRef<Player>() as RefObject<Player>;
 
   const onFired = useCallback(
     (message: string) => {
@@ -97,17 +98,19 @@ const Game = () => {
             <VStack>
               <Text>トーチ</Text>
               <Player
+                ref={torchRef}
                 src={
                   //'https://lottie.host/3ae91b29-270b-49c6-b0bb-c3ee72fd12b4/MxgxWURHkH.json'
                   'https://lottie.host/7966f179-cf56-4f7c-a817-b52fc3e1a50f/JQUCTVGjFJ.json'
                 }
-                autoplay
-                loop
+                // autoplay
+                // loop
                 style={{ maxWidth: '300px', maxHeight: '300px' }}
               ></Player>
               <Button
                 onClick={() => {
                   setTimeout(() => sonicSocket.send('myuserid'), 1000);
+                  torchRef.current?.play();
                 }}
               >
                 灯す
