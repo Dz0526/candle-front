@@ -78,7 +78,7 @@ const Game = () => {
   const [igniter, setIgniter] = useState<Igniter>();
   const [role, setRole] = useState<StartResponse>();
   const [error, setError] = useState('');
-  const { remainingTimePercentage, start: startTimer } = useTimer(20, () => {
+  const { remainingTimePercentage, start: startTimer } = useTimer(25, () => {
     if (role && igniter) {
       sendResult({
         user_id: router.query.user_id as string,
@@ -337,7 +337,10 @@ const Game = () => {
           </SwiperSlide>
           <SwiperSlide>
             <VStack>
-              <Text>{role.question_description}</Text>
+              <Text>
+                「{role.question_description}
+                」に「はい」と答えた人に灯してもらうキャンドル
+              </Text>
               <GameCandle
                 isLit={isLit}
                 ignitedBy={igniter ? igniter.nickname : ''}
