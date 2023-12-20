@@ -6,6 +6,12 @@ export const theme = extendTheme({
       '.swipe': {
         position: 'absolute',
       },
+      html: {
+        overflow: 'hidden',
+      },
+      body: {
+        overflow: 'hidden',
+      },
     },
   },
 });
