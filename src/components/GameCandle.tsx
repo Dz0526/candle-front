@@ -1,15 +1,15 @@
-import { Text, VStack } from '@chakra-ui/react';
+import { Button, Text, VStack } from '@chakra-ui/react';
 import { Player } from '@lottiefiles/react-lottie-player';
 import { RefObject, useRef } from 'react';
 
 type Props = {
   isLit: boolean;
   ignitedBy: string;
+  putOut: () => void;
 };
 
 export const GameCandle = (props: Props) => {
   const ref = useRef<Player>() as RefObject<Player>;
-  // const [isLit, setIsLit] = useState(false);
 
   return (
     <>
@@ -41,18 +41,19 @@ export const GameCandle = (props: Props) => {
             }}
           ></Player>
         )}
-        {props.ignitedBy && (
+        {props.isLit && (
           <Text fontSize={'larger'}>{props.ignitedBy}に灯してもらった</Text>
         )}
       </VStack>
-
-      {/* <Button
-        bgColor={'lightBlue'}
-        color={'white'}
-        onClick={() => setIsLit(!isLit)}
-      >
-        {isLit ? '消す' : '灯す'}
-      </Button> */}
+      {props.isLit && (
+        <Button
+          bgColor={'lightBlue'}
+          color={'white'}
+          onClick={() => props.putOut()}
+        >
+          消す
+        </Button>
+      )}
     </>
   );
 };

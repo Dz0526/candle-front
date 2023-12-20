@@ -16,6 +16,7 @@ import { Player } from '@lottiefiles/react-lottie-player';
 import { useMutation } from '@tanstack/react-query';
 import MicPermission from 'components/Game/MicPermission';
 import Pending from 'components/Game/Pending';
+import useTimer from 'components/Game/useTimer';
 import { GameCandle } from 'components/GameCandle';
 import { SonicCoder, SonicServer, SonicSocket } from 'lib/sonicnet';
 import { useRouter } from 'next/router';
@@ -32,11 +33,26 @@ type StartResponse = {
   user_id: string;
   is_santa: boolean;
   question_id: string;
-  statement: string;
+  question_description: string;
 };
 
 type StartInput = {
   user_id: string;
+};
+
+type ResultInput = {
+  user_id: string;
+  fire_user_id: string;
+  question_id: number;
+};
+
+type ResultResponse = {
+  fired: boolean;
+};
+
+type Igniter = {
+  userId: string;
+  nickname: string;
 };
 
 const Game = () => {
@@ -59,17 +75,45 @@ const Game = () => {
   const router = useRouter();
   const torchRef = useRef<Player>() as RefObject<Player>;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [igniter, setIgniter] = useState('');
+  const [igniter, setIgniter] = useState<Igniter>();
   const [role, setRole] = useState<StartResponse>();
   const [error, setError] = useState('');
+  const { remainingTimePercentage, start: startTimer } = useTimer(20, () => {
+    alert(role);
+    if (role && igniter) {
+      sendResult({
+        user_id: router.query.user_id as string,
+        fire_user_id: igniter.userId,
+        question_id: 0,
+      });
+    }
+  });
+  useEffect(() => {
+    console.log(role);
+  });
 
-  const { mutate } = useMutation({
+  const { mutate: startGame } = useMutation({
     mutationFn: (input: StartInput) =>
       client
         .post<StartResponse>(`/room/${router.query.slug}/start`, input)
         .then(res => res.data),
     onSuccess: data => {
       setRole(data);
+    },
+    onError: error => {
+      setError('エラーが発生しました。');
+    },
+  });
+  const { mutate: sendResult } = useMutation({
+    mutationFn: (input: ResultInput) =>
+      client
+        .post<ResultResponse>(`/room/${router.query.slug}/result`, input)
+        .then(res => res.data),
+    onSuccess: data => {
+      alert(data);
+      router.push(
+        `/rooms/${router.query.slug}/result?user_id=${router.query.user_id}`,
+      );
     },
     onError: error => {
       setError('エラーが発生しました。');
@@ -84,9 +128,9 @@ const Game = () => {
 
   useEffect(() => {
     if (!isPending && router.isReady) {
-      mutate({ user_id: router.query.user_id as string });
+      startGame({ user_id: router.query.user_id as string });
     }
-  }, [isPending, mutate, router]);
+  }, [isPending, startGame, router]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -98,6 +142,7 @@ const Game = () => {
       const message = JSON.parse(msg.data);
       if (message.type == 'start') {
         setIsPending(false);
+        startTimer();
       }
 
       if (message.type == 'fire_request') {
@@ -120,7 +165,10 @@ const Game = () => {
 
       if (message.type == 'fire_response') {
         if (message.to == router.query.user_id) {
-          setIgniter(message.from.nickname);
+          setIgniter({
+            nickname: message.from.nickname,
+            userId: message.from.userId,
+          });
           setIsLit(true);
         }
       }
@@ -143,7 +191,11 @@ const Game = () => {
         }),
       );
       setIsPending(false);
+      startTimer();
     }
+  };
+  const putOut = () => {
+    setIsLit(false);
   };
 
   const onFired = useCallback(
@@ -221,7 +273,7 @@ const Game = () => {
 
   return (
     <>
-      <Progress value={passedTime <= 100 ? 100 - passedTime : 0} />
+      <Progress value={remainingTimePercentage} />
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
@@ -290,8 +342,12 @@ const Game = () => {
           </SwiperSlide>
           <SwiperSlide>
             <VStack>
-              <Text>{role.statement}</Text>
-              <GameCandle isLit={isLit} ignitedBy={igniter} />
+              <Text>{role.question_description}</Text>
+              <GameCandle
+                isLit={isLit}
+                ignitedBy={igniter ? igniter.nickname : ''}
+                putOut={() => putOut()}
+              />
             </VStack>
           </SwiperSlide>
         </Swiper>
