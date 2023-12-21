@@ -33,7 +33,7 @@ const ResultPage: NextPage = () => {
 
   const router = useRouter();
   const user_id = router.query.user_id;
-  const room_id = router.query.room_id;
+  const room_id = router.query.slug;
   const { isLoading, data, isError } = useQuery<ResultResponse, AxiosError>({
     queryKey: ['results'],
     queryFn: () =>
@@ -80,7 +80,7 @@ const ResultPage: NextPage = () => {
     </Container>
   ) : (
     <Container>
-      {isLoading && data && (
+      {!isLoading && data && (
         <Flex alignItems={'center'} h={'100vh'} justifyContent={'center'}>
           <VStack>
             <Heading>結果発表</Heading>

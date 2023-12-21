@@ -83,7 +83,7 @@ const Game = () => {
       sendResult({
         user_id: router.query.user_id as string,
         fire_user_id: igniter.userId,
-        question_id: 0,
+        question_id: parseInt(role.question_id),
       });
     }
   });
