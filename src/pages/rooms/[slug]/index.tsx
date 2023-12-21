@@ -328,6 +328,7 @@ const Game = () => {
                         .split('')
                         .join(','),
                     );
+                    torchRef.current?.play();
                   }
                 }}
               >
