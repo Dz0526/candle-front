@@ -55,7 +55,8 @@ const ResultPage: NextPage = () => {
         data.result
           ? winAnimationRef.current?.play()
           : loseAnimationRef.current?.play();
-      }, 2000);
+      }, 5000);
+      return;
     }
     setTimeout(() => {
       setDisplayResult(true);
@@ -100,67 +101,102 @@ const ResultPage: NextPage = () => {
                   opacity: isWindVisiable ? 1 : 0,
                 }}
               ></Player>
-              <Player
-                src={
-                  'https://lottie.host/e14f1cb3-b451-48aa-9372-33b8ad641669/TSfpHpOfvn.json'
-                }
-                autoplay
-                loop
-                style={{
-                  maxWidth: '300px',
-                  maxHeight: '300px',
-                  transition: '1s',
-                  opacity: lit ? 1 : 0,
-                }}
-              ></Player>
-
-              <Player
-                src={
-                  'https://lottie.host/b3294f49-3e15-4363-b72d-9d12a869b4fa/ySy9Bz0IQa.json'
-                }
-                autoplay
-                loop
-                style={{
-                  maxWidth: '300px',
-                  maxHeight: '300px',
-                  transition: '2s',
-                  opacity: isSnowmanVisiable ? 1 : 0,
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                }}
-              ></Player>
-
-              <VStack opacity={data.result && displayResult ? 1 : 0}>
+              {!displayResult && (
                 <Player
-                  ref={winAnimationRef}
                   src={
-                    'https://lottie.host/e02308a6-7a66-449a-bad0-152bca2f2cdd/GAdsWB4RRC.json'
+                    'https://lottie.host/e14f1cb3-b451-48aa-9372-33b8ad641669/TSfpHpOfvn.json'
                   }
-                />
-                <Text>あなたの陣営の勝利です！</Text>
-              </VStack>
+                  autoplay
+                  loop
+                  style={{
+                    maxWidth: '300px',
+                    maxHeight: '300px',
+                    transition: '1s',
+                    opacity: lit ? 1 : 0,
+                  }}
+                ></Player>
+              )}
 
-              <VStack opacity={data.result && displayResult ? 0 : 1}>
+              {!displayResult && (
                 <Player
-                  ref={loseAnimationRef}
                   src={
-                    'https://lottie.host/0f0152b3-2ab8-4f70-8841-7fd851a392c5/L5GxXpjmdj.json'
+                    'https://lottie.host/b3294f49-3e15-4363-b72d-9d12a869b4fa/ySy9Bz0IQa.json'
                   }
+                  autoplay
+                  loop
+                  style={{
+                    maxWidth: '300px',
+                    maxHeight: '300px',
+                    transition: '2s',
+                    opacity: isSnowmanVisiable ? 1 : 0,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                  }}
+                ></Player>
+              )}
+
+              {displayResult && (
+                <Box
+                  width={'300px'}
+                  height={'300px'}
+                  // position={'absolute'}
+                  // top={0}
+                  // left={0}
                 />
-                <Text>相手陣営の勝利です！</Text>
+              )}
+
+              <VStack
+                opacity={displayResult ? 1 : 0}
+                position={'absolute'}
+                top={0}
+              >
+                {data.result ? (
+                  <>
+                    <Player
+                      ref={winAnimationRef}
+                      src={
+                        'https://lottie.host/e02308a6-7a66-449a-bad0-152bca2f2cdd/GAdsWB4RRC.json'
+                      }
+                      onEvent={e => {
+                        if (e == 'play') {
+                          setTimeout(() => {
+                            winAnimationRef.current?.pause();
+                          }, 2400);
+                        }
+                      }}
+                    />
+                    <Text>あなたの陣営の勝利です！</Text>
+                  </>
+                ) : (
+                  <>
+                    <Player
+                      ref={loseAnimationRef}
+                      autoplay
+                      loop
+                      src={
+                        'https://lottie.host/0f0152b3-2ab8-4f70-8841-7fd851a392c5/L5GxXpjmdj.json'
+                      }
+                    />
+                    <Text>相手陣営の勝利です！</Text>
+                  </>
+                )}
               </VStack>
             </Box>
-            <Text>{data.ignited_by}に灯してもらったキャンドル</Text>
+            {!displayResult && (
+              <>
+                <Text>{data.ignited_by}に灯してもらったキャンドル</Text>
 
-            <Button
-              bgColor={'lightBlue'}
-              color={'white'}
-              onClick={() => putOut()}
-              w={'100%'}
-            >
-              結果発表
-            </Button>
+                <Button
+                  bgColor={'lightBlue'}
+                  color={'white'}
+                  onClick={() => putOut()}
+                  w={'100%'}
+                >
+                  結果発表
+                </Button>
+              </>
+            )}
           </VStack>
         </Flex>
       )}
