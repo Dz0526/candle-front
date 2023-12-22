@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Container,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -14,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { Player } from '@lottiefiles/react-lottie-player';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import MicPermission from 'components/Game/MicPermission';
 import Pending from 'components/Game/Pending';
 import useTimer from 'components/Game/useTimer';
@@ -97,6 +99,24 @@ const Game = () => {
       setRole(data);
     },
     onError: error => {
+      console.log(error);
+      if (error instanceof AxiosError && error.response) {
+        if (
+          error.response.data.message ==
+          'Game cannot start because there are not enough participants.'
+        ) {
+          console.log(error.response.data.message);
+          setError('3人以上の参加者が必要です！');
+          return;
+        } else if (
+          error.response.data.message ==
+          'Unable to start game due to question answer status'
+        ) {
+          setError(
+            '質問ロジックの穴をつきましたね！もう一度やり直してください',
+          );
+        }
+      }
       setError('エラーが発生しました。');
     },
   });
@@ -245,6 +265,23 @@ const Game = () => {
     return () => clearInterval(interval);
   }, [onFired, sonicServer]);
 
+  if (error.length > 0) {
+    return (
+      <Container h={'100%'}>
+        <VStack justifyContent={'center'} h={'100%'}>
+          <Player
+            src={
+              'https://lottie.host/094b6c36-2b95-436e-8ffb-8c687f953e74/Pp8oPFEZ9A.json'
+            }
+            autoplay
+            loop
+          />
+          <Text fontSize={'2xl'}>{error}</Text>
+        </VStack>
+      </Container>
+    );
+  }
+
   if (!hasPermission) {
     return (
       <MicPermission
@@ -266,6 +303,7 @@ const Game = () => {
     return <Pending onStart={() => start()}></Pending>;
   }
 
+  console.log(error);
   return (
     <>
       <Progress value={remainingTimePercentage} />
