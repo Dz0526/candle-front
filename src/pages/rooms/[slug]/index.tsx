@@ -209,11 +209,13 @@ const Game = () => {
     return () => {
       if (socket.current) {
         console.log('kami');
-        socket.current.close();
-        socket.current.removeEventListener('message', onMessage);
+        if (socket.current.readyState == 1) {
+          socket.current.removeEventListener('message', onMessage);
+          socket.current.close();
+        }
       }
     };
-  }, [router, startTimer]);
+  }, []);
 
   const start = () => {
     if (socket.current) {
