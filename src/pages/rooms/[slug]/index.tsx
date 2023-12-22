@@ -163,6 +163,7 @@ const Game = () => {
     }
   };
   useEffect(() => {
+    console.log('kami');
     if (!router.isReady) return;
     socket.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_ORIGIN}`);
     socket.current.onopen = () => {
@@ -207,6 +208,7 @@ const Game = () => {
 
     return () => {
       if (socket.current) {
+        console.log('kami');
         socket.current.close();
         socket.current.removeEventListener('message', onMessage);
       }
