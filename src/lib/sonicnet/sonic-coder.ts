@@ -17,8 +17,8 @@ export class SonicCoder {
   public alphabet: string;
 
   constructor(params: SonicCoderParams = {}) {
-    this.freqMin = params.freqMin || 19000;
-    this.freqMax = params.freqMax || 20000;
+    this.freqMin = params.freqMin || 18000;
+    this.freqMax = params.freqMax || 19500;
     this.freqError = params.freqError || 50;
     this.alphabetString =
       params.alphabet || '\n abcdefghijklmnopqrstuvwxyz0123456789,.!?@*';
