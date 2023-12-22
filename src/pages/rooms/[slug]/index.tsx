@@ -278,6 +278,19 @@ const Game = () => {
             }),
           }),
         );
+        socket.current.send(
+          JSON.stringify({
+            topic: router.query.slug,
+            message: JSON.stringify({
+              type: 'fire_request',
+              from: {
+                userId: router.query.user_id,
+                nickname: router.query.nickname,
+              },
+              to: decodedId,
+            }),
+          }),
+        );
       }
     },
     [
