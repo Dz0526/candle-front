@@ -127,12 +127,74 @@ const Game = () => {
     }
   }, [isPending, startGame, router]);
 
+  const onMessage = (msg: MessageEvent<any>) => {
+    const message = JSON.parse(msg.data);
+    if (message.type == 'start') {
+      setIsPending(false);
+      startTimer();
+    }
+
+    if (message.type == 'fire_request') {
+      if ((router.query.user_id as string).startsWith(message.to)) {
+        socket.current?.send(
+          JSON.stringify({
+            topic: router.query.slug,
+            message: JSON.stringify({
+              type: 'fire_response',
+              from: {
+                userId: router.query.user_id,
+                nickname: router.query.nickname,
+              },
+              to: message.from.userId,
+            }),
+          }),
+        );
+        socket.current?.send(
+          JSON.stringify({
+            topic: router.query.slug,
+            message: JSON.stringify({
+              type: 'fire_response',
+              from: {
+                userId: router.query.user_id,
+                nickname: router.query.nickname,
+              },
+              to: message.from.userId,
+            }),
+          }),
+        );
+        socket.current?.send(
+          JSON.stringify({
+            topic: router.query.slug,
+            message: JSON.stringify({
+              type: 'fire_response',
+              from: {
+                userId: router.query.user_id,
+                nickname: router.query.nickname,
+              },
+              to: message.from.userId,
+            }),
+          }),
+        );
+      }
+    }
+
+    if (message.type == 'fire_response') {
+      if (message.to == router.query.user_id) {
+        setIgniter({
+          nickname: message.from.nickname,
+          userId: message.from.userId,
+        });
+        setIsLit(true);
+      }
+    }
+  };
   useEffect(() => {
     if (!router.isReady) return;
     socket.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_ORIGIN}`);
     socket.current.onopen = () => {
       socket.current?.send(JSON.stringify({ topic: router.query.slug }));
     };
+    socket.current.addEventListener('message', onMessage);
     socket.current.onmessage = msg => {
       const message = JSON.parse(msg.data);
       if (message.type == 'start') {
@@ -171,10 +233,13 @@ const Game = () => {
 
     return () => {
       if (socket.current) {
-        socket.current.close();
+        if (socket.current.readyState == 1) {
+          socket.current.removeEventListener('message', onMessage);
+          socket.current.close();
+        }
       }
     };
-  }, [router, startTimer]);
+  }, []);
 
   const start = () => {
     if (socket.current) {
@@ -322,6 +387,18 @@ const Game = () => {
               <Button
                 onClick={() => {
                   if (router.query.user_id) {
+                    sonicSocket.current.send(
+                      (router.query.user_id as string)
+                        .slice(0, 8)
+                        .split('')
+                        .join(','),
+                    );
+                    sonicSocket.current.send(
+                      (router.query.user_id as string)
+                        .slice(0, 8)
+                        .split('')
+                        .join(','),
+                    );
                     sonicSocket.current.send(
                       (router.query.user_id as string)
                         .slice(0, 8)
