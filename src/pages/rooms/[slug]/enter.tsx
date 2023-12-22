@@ -107,7 +107,7 @@ const EnterPage: NextPage = () => {
           mt={{ base: 20, sm: 40 }}
           mb={{ base: 0, sm: 20 }}
         >
-          <Heading fontSize={{ base: 'lg', sm: '2xl' }}>
+          <Heading fontSize={'lg'}>
             ゲームに参加するために質問に答えよう
           </Heading>
           <form
@@ -122,13 +122,14 @@ const EnterPage: NextPage = () => {
                   <FormLabel htmlFor='name'>ユーザー名</FormLabel>
                   <Input
                     id='name'
+                    required
                     onChange={e => setNickname(e.target.value)}
                   ></Input>
                 </FormControl>
                 <Box
                   w={'90vw'}
-                  maxW={{ base: '200px', sm: '260px' }}
-                  height={{ base: '240px', sm: '300px' }}
+                  maxW={{ base: '200px', sm: '220px' }}
+                  height={{ base: '240px', sm: '260px' }}
                 >
                   {!isLoading &&
                     data &&
@@ -164,8 +165,8 @@ const EnterPage: NextPage = () => {
                           //bgGradient={'linear(to-r, green.200, pink.500)'}
                           bgColor={'white'}
                           width={'80vw'}
-                          maxW={{ base: '200px', sm: '260px' }}
-                          height={{ base: '240px', sm: '300px' }}
+                          maxW={{ base: '200px', sm: '220px' }}
+                          height={{ base: '240px', sm: '260px' }}
                           boxShadow={'lg'}
                           borderRadius={'20px'}
                         >
@@ -210,7 +211,10 @@ const EnterPage: NextPage = () => {
                 color='white'
                 type='submit'
                 w='100%'
-                isLoading={data ? data?.questions.length > swipedNum : true}
+                isLoading={
+                  (data ? data?.questions.length > swipedNum : true) ||
+                  nickname.length == 0
+                }
                 loadingText={'参加する'}
                 spinner={<></>}
               >
