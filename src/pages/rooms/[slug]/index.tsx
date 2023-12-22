@@ -393,18 +393,6 @@ const Game = () => {
                         .split('')
                         .join(','),
                     );
-                    sonicSocket.current.send(
-                      (router.query.user_id as string)
-                        .slice(0, 8)
-                        .split('')
-                        .join(','),
-                    );
-                    sonicSocket.current.send(
-                      (router.query.user_id as string)
-                        .slice(0, 8)
-                        .split('')
-                        .join(','),
-                    );
                     torchRef.current?.play();
                   }
                 }}
