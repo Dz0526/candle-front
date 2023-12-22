@@ -78,7 +78,7 @@ const Game = () => {
   const [igniter, setIgniter] = useState<Igniter>();
   const [role, setRole] = useState<StartResponse>();
   const [error, setError] = useState('');
-  const { remainingTimePercentage, start: startTimer } = useTimer(25, () => {
+  const { remainingTimePercentage, start: startTimer } = useTimer(300, () => {
     if (role && igniter) {
       sendResult({
         user_id: router.query.user_id as string,
