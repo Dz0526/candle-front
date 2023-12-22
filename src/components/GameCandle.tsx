@@ -45,7 +45,7 @@ export const GameCandle = (props: Props) => {
           <Text fontSize={'larger'}>{props.ignitedBy}に灯してもらった</Text>
         )}
       </VStack>
-      {props.isLit && (
+      {/* {props.isLit && (
         <Button
           bgColor={'lightBlue'}
           color={'white'}
@@ -53,7 +53,7 @@ export const GameCandle = (props: Props) => {
         >
           消す
         </Button>
-      )}
+      )} */}
     </>
   );
 };
