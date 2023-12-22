@@ -102,9 +102,9 @@ const EnterPage: NextPage = () => {
       </Box>
       <Flex justifyContent={'center'} maxH={{ base: '600px' }}>
         <VStack
-          spacing={8}
+          spacing={6}
           zIndex={0}
-          mt={{ base: 20, sm: 40 }}
+          mt={{ base: 20, sm: 20 }}
           mb={{ base: 0, sm: 20 }}
         >
           <Heading fontSize={'lg'}>
@@ -116,8 +116,8 @@ const EnterPage: NextPage = () => {
               onSubmit();
             }}
           >
-            <VStack spacing={8}>
-              <VStack spacing={8}>
+            <VStack spacing={6}>
+              <VStack spacing={6}>
                 <FormControl>
                   <FormLabel htmlFor='name'>ユーザー名</FormLabel>
                   <Input
@@ -129,7 +129,7 @@ const EnterPage: NextPage = () => {
                 <Box
                   w={'90vw'}
                   maxW={{ base: '200px', sm: '220px' }}
-                  height={{ base: '240px', sm: '260px' }}
+                  height={{ base: '220px', sm: '240px' }}
                 >
                   {!isLoading &&
                     data &&
@@ -166,7 +166,7 @@ const EnterPage: NextPage = () => {
                           bgColor={'white'}
                           width={'80vw'}
                           maxW={{ base: '200px', sm: '220px' }}
-                          height={{ base: '240px', sm: '260px' }}
+                          height={{ base: '220px', sm: '240px' }}
                           boxShadow={'lg'}
                           borderRadius={'20px'}
                         >
