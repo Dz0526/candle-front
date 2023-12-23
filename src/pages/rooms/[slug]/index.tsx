@@ -59,12 +59,12 @@ const Game = () => {
   const [passedTime, setPassedTime] = useState(0);
   const sonicServer = useRef(
     new SonicServer({
-      coder: new SonicCoder({ freqMin: 16000, freqMax: 18000 }),
+      coder: new SonicCoder({ freqMin: 16000, freqMax: 18500 }),
     }),
   );
   const sonicSocket = useRef(
     new SonicSocket({
-      coder: new SonicCoder({ freqMin: 16000, freqMax: 18000 }),
+      coder: new SonicCoder({ freqMin: 16000, freqMax: 18500 }),
       charDuration: 0.3,
     }),
   );
@@ -305,7 +305,7 @@ const Game = () => {
 
   useEffect(() => {
     sonicServer.current.onMessage(onFired);
-    const interval = setInterval(() => sonicServer.current.loop(), 1);
+    const interval = setInterval(() => sonicServer.current.loop(), 0);
     return () => clearInterval(interval);
   }, [onFired, sonicServer]);
 
