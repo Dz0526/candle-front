@@ -278,6 +278,19 @@ const Game = () => {
             }),
           }),
         );
+        socket.current.send(
+          JSON.stringify({
+            topic: router.query.slug,
+            message: JSON.stringify({
+              type: 'fire_request',
+              from: {
+                userId: router.query.user_id,
+                nickname: router.query.nickname,
+              },
+              to: decodedId,
+            }),
+          }),
+        );
       }
     },
     [
@@ -389,19 +402,7 @@ const Game = () => {
                   if (router.query.user_id) {
                     sonicSocket.current.send(
                       (router.query.user_id as string)
-                        .slice(0, 8)
-                        .split('')
-                        .join(','),
-                    );
-                    sonicSocket.current.send(
-                      (router.query.user_id as string)
-                        .slice(0, 8)
-                        .split('')
-                        .join(','),
-                    );
-                    sonicSocket.current.send(
-                      (router.query.user_id as string)
-                        .slice(0, 8)
+                        .slice(0, 4)
                         .split('')
                         .join(','),
                     );
