@@ -59,12 +59,13 @@ const Game = () => {
   const [passedTime, setPassedTime] = useState(0);
   const sonicServer = useRef(
     new SonicServer({
-      coder: new SonicCoder(),
+      coder: new SonicCoder({ freqMin: 16000, freqMax: 18000 }),
     }),
   );
   const sonicSocket = useRef(
     new SonicSocket({
-      coder: new SonicCoder(),
+      coder: new SonicCoder({ freqMin: 16000, freqMax: 18000 }),
+      charDuration: 0.3,
     }),
   );
   const [pageIndex, setPageIndex] = useState(0);
