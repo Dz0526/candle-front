@@ -29,7 +29,11 @@ const SharePage = () => {
               onClick={() => {
                 // https環境で正しく動作
                 navigator.clipboard
-                  .writeText(`https://${location.host}/rooms/${slug}/share`)
+                  .writeText(
+                    `https://${
+                      process.browser && location.host
+                    }/rooms/${slug}/share`,
+                  )
                   .then(() => {
                     toast({
                       title: 'クリップボードにURLがコピーされました',
