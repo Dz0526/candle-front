@@ -264,6 +264,7 @@ const Game = () => {
       if (pageIndex == 0 || isLit) {
         return;
       }
+      alert(`received sonic message: ${message}`);
       if (socket.current) {
         const decodedId = message.split(',').join('');
         socket.current.send(
