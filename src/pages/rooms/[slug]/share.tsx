@@ -23,17 +23,17 @@ const SharePage = () => {
           />
           <VStack spacing={'20px'}>
             <QRCodeCanvas
-              value={`https://${location.host}/rooms/${slug}/share`}
+              value={
+                process.browser
+                  ? `https://${location.host}/rooms/${slug}/share`
+                  : ''
+              }
             ></QRCodeCanvas>
             <Button
               onClick={() => {
                 // https環境で正しく動作
                 navigator.clipboard
-                  .writeText(
-                    `https://${
-                      process.browser && location.host
-                    }/rooms/${slug}/share`,
-                  )
+                  .writeText(`https://${location.host}/rooms/${slug}/share`)
                   .then(() => {
                     toast({
                       title: 'クリップボードにURLがコピーされました',
