@@ -12,7 +12,9 @@ const SharePage = () => {
     <Container>
       <Flex alignItems={'center'} justifyContent={'center'} h={'100vh'}>
         <VStack>
-          <Text fontSize={'2xl'}>友達もゲームに誘おう！</Text>
+          <Text fontSize={{ base: 'xl', sm: '2xl' }}>
+            友達もゲームに誘おう！
+          </Text>
           <Player
             src={
               'https://lottie.host/040ea6b8-e209-4330-8832-a97c7fdd6fcb/xvlJhdPLUV.json'
