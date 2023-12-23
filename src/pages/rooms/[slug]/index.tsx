@@ -402,7 +402,7 @@ const Game = () => {
                   if (router.query.user_id) {
                     sonicSocket.current.send(
                       (router.query.user_id as string)
-                        .slice(0, 4)
+                        .slice(0, 3)
                         .split('')
                         .join(','),
                     );
