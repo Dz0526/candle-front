@@ -2,6 +2,7 @@ import { Container, Flex, Text, VStack, useToast } from '@chakra-ui/react';
 import { Player } from '@lottiefiles/react-lottie-player';
 import { Button } from 'components/common/Button';
 import { useRouter } from 'next/router';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const SharePage = () => {
   const router = useRouter();
@@ -21,6 +22,9 @@ const SharePage = () => {
             style={{ width: '200px', height: '200px' }}
           />
           <VStack spacing={'20px'}>
+            <QRCodeCanvas
+              value={`https://${location.host}/rooms/${slug}/share`}
+            ></QRCodeCanvas>
             <Button
               onClick={() => {
                 // https環境で正しく動作
